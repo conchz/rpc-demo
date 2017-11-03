@@ -17,35 +17,36 @@ import org.lavenderx.rpc.codec.RpcDecoder;
 import org.lavenderx.rpc.codec.RpcEncoder;
 import org.lavenderx.rpc.dto.RpcRequest;
 import org.lavenderx.rpc.dto.RpcResponse;
-import org.lavenderx.rpc.registry.ServiceRegistry;
+import org.lavenderx.rpc.registry.ZkServiceRegistry;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * RPC 服务器（用于发布 RPC 服务）
  */
 @Slf4j
-public class RpcServer implements ApplicationContextAware, InitializingBean {
+public class RpcServer implements ApplicationContextAware, InitializingBean, DisposableBean {
 
     private String serviceAddress;
 
-    private ServiceRegistry serviceRegistry;
+    private ZkServiceRegistry serviceRegistry;
 
     /**
      * 存放 服务名 与 服务对象 之间的映射关系
      */
-    private Map<String, Object> handlerMap = new HashMap<>();
+    private Map<String, Object> handlerMap = new ConcurrentHashMap<>();
 
     public RpcServer(String serviceAddress) {
         this.serviceAddress = serviceAddress;
     }
 
-    public RpcServer(String serviceAddress, ServiceRegistry serviceRegistry) {
+    public RpcServer(String serviceAddress, ZkServiceRegistry serviceRegistry) {
         this.serviceAddress = serviceAddress;
         this.serviceRegistry = serviceRegistry;
     }
@@ -106,6 +107,13 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
+        }
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        if (serviceRegistry != null) {
+            serviceRegistry.close();
         }
     }
 }

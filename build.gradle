@@ -10,6 +10,9 @@ targetCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 repositories {
+    mavenLocal()
+    maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
+    jcenter()
     mavenCentral()
 }
 
@@ -18,7 +21,11 @@ dependencies {
     compile 'com.dyuproject.protostuff:protostuff-core:1.0.12'
     compile 'com.dyuproject.protostuff:protostuff-runtime:1.0.12'
     compile 'org.objenesis:objenesis:2.6'
-    
+
+    compile 'org.slf4j:jcl-over-slf4j:1.7.25'
+    compile 'ch.qos.logback:logback-core:1.2.3'
+    compile 'ch.qos.logback:logback-classic:1.2.3'
+
     compile 'org.projectlombok:lombok:1.16.18'
     compile 'org.apache.commons:commons-collections4:4.1'
     compile 'org.apache.commons:commons-lang3:3.6'
