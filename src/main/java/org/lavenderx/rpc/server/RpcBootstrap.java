@@ -1,10 +1,12 @@
 package org.lavenderx.rpc.server;
 
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.lavenderx.rpc.config.RpcConfig;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class RpcBootstrap {
 
     public static void main(String[] args) {
-        new ClassPathXmlApplicationContext("spring.xml");
+        ApplicationContext ctx = new AnnotationConfigApplicationContext(RpcConfig.class);
     }
 }

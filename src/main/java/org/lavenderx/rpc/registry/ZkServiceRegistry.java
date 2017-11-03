@@ -10,6 +10,9 @@ import org.apache.curator.x.discovery.ServiceInstance;
 import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
 import org.lavenderx.rpc.domain.ServiceDetail;
 import org.lavenderx.rpc.registry.ServiceRegistry;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -20,28 +23,29 @@ import java.util.Collection;
  * http://blog.csdn.net/sqh201030412/article/details/51438508
  */
 @Slf4j
+@Component
 public class ZkServiceRegistry implements ServiceRegistry {
 
     @Override
     public void register(String serviceName, String zkAddresses) {
-        CuratorFramework client = CuratorFrameworkFactory.newClient(zkAddresses, new ExponentialBackoffRetry(1000, 3));
-        client.start();
-
-        try {
-            client.create().forPath(serviceName, "Create init".getBytes(StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        CuratorFramework client = CuratorFrameworkFactory.newClient(zkAddresses, new ExponentialBackoffRetry(1000, 3));
+//        client.start();
+//
+//        try {
+//            client.create().forPath(serviceName, "Create init".getBytes(StandardCharsets.UTF_8));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     private final ServiceDiscovery<ServiceDetail> serviceDiscovery;
+    private final CuratorFramework zkClient;
 
-    private final CuratorFramework client;
-
-    public ZkServiceRegistry(CuratorFramework client, String basePath) {
-        this.client = client;
+    @Autowired
+    public ZkServiceRegistry(CuratorFramework zkClient, @Value("${zk.basePath}") String basePath) {
+        this.zkClient = zkClient;
         this.serviceDiscovery = ServiceDiscoveryBuilder.builder(ServiceDetail.class)
-                .client(client)
+                .client(zkClient)
                 .serializer(new JsonInstanceSerializer<>(ServiceDetail.class))
                 .basePath(basePath)
                 .build();
